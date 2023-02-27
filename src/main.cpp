@@ -125,6 +125,8 @@ int main(int argc, char** argv)
     if (!m) { mju_error_s("Load model error: %s", error); }
     d = mj_makeData(m);
 
+     
+
     // init GLFW
     if (!glfwInit()) {
     mju_error("Could not initialize GLFW");
@@ -140,6 +142,9 @@ int main(int argc, char** argv)
     mjv_defaultOption(&opt);
     mjv_defaultScene(&scn);
     mjr_defaultContext(&con);
+
+    opt.frame = mjtFrame::mjFRAME_BODY;
+    opt.label = mjtLabel::mjLABEL_BODY;
 
     // create scene and context
     mjv_makeScene(m, &scn, 2000);

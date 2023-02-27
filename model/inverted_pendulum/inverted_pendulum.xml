@@ -1,10 +1,33 @@
 <mujoco>
+    <compiler angle="radian"/>
+
+    <visual>
+        <scale framelength="0.5" framewidth="0.02"/> 
+    </visual>
+
+
    <worldbody>
       <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
-      <geom type="plane" size="1 1 0.1" rgba=".9 0 0 1"/>
-      <body pos="0 0 1">
-         <joint type="free"/>
-         <geom type="box" size=".1 .2 .3" rgba="0 .9 0 1"/>
-      </body>
+      <site type="box" size="1 1 0.01" rgba=".5 .5 .5 1"/>
+
+      <body name="cart" pos="0 0 0" euler="0 0 0">
+        <joint type="slide" axis="1 0 0"/>
+        <geom type="box" size=".2 .1 .05" rgba="0 .5 0 0.5"/>
+        <site name="cart_force_location" type="sphere" size="0.1" pos="0 0 0"/>
+
+        <body name="pendulum" pos="0 0 0" euler="0 0.01 0">
+        <joint type="hinge" axis="0 1 0"/>
+        <geom type="cylinder" size="0.05 1" pos="0 0 1" rgba="0 0 0.5 0.5" />
+        </body>
+    </body>
+
+      <!-- <include file="../coordinate_frame/coordinate_frame.xml"/> -->
+
    </worldbody>
+
+    <actuator>
+        <position name="cart_actuator" site="cart_force_location"/>
+    </actuator>
+
 </mujoco>
+

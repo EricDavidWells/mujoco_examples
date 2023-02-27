@@ -1,0 +1,29 @@
+
+
+<mujoco>
+
+    <default class="axis">
+        <geom type="cylinder" size=".5 .1"/>
+        <default class="xaxis"> 
+            <geom rgba="1 0 0 0.5" pos="0 0 0.5"/>
+        </default>
+        <default class="yaxis">
+            <geom rgba="0 1 0 0.5"/>
+        </default>
+        <default class="zaxis">
+            <geom rgba="0 0 1 0.5"/>
+        </default>
+    </default>
+
+    <body pos="0 0 0" euler="0 1.5708 0">
+        <geom type="cylinder" class="xaxis"/>
+    </body>
+    <body pos="0 0 0" euler="-1.5708 0 0">
+        <geom type="cylinder" class="yaxis"/>
+    </body>
+    <body pos="0 0 0" euler="0 0 0">
+        <geom type="cylinder" class="zaxis"/>
+    </body>
+</mujoco>
+
+<!-- <compiler angle="radian"/> -->
