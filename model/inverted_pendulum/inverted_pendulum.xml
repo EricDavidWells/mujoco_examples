@@ -11,12 +11,12 @@
       <site type="box" size="1 1 0.01" rgba=".5 .5 .5 1"/>
 
       <body name="cart" pos="0 0 0" euler="0 0 0">
-        <joint type="slide" axis="1 0 0"/>
+        <joint name="cart_slide" type="slide" axis="1 0 0"/>
         <geom type="box" size=".2 .1 .05" rgba="0 .5 0 0.5"/>
         <site name="cart_force_location" type="sphere" size="0.1" pos="0 0 0"/>
 
         <body name="pendulum" pos="0 0 0" euler="0 0.01 0">
-        <joint type="hinge" axis="0 1 0"/>
+        <joint name="pendulum_rotation" type="hinge" axis="0 1 0"/>
         <geom type="cylinder" size="0.05 1" pos="0 0 1" rgba="0 0 0.5 0.5" />
         </body>
     </body>
@@ -26,8 +26,13 @@
    </worldbody>
 
     <actuator>
-        <position name="cart_actuator" site="cart_force_location"/>
+        <position name="cart_actuator" site="cart_force_location" gear="1 1 1 0 0 0"/>
     </actuator>
+
+    <sensor>
+        <jointpos name="cart_slide_sensor" joint="cart_slide"/>
+        <jointpos name="pendulum_rotation_sensor" joint="pendulum_rotation"/>
+    </sensor>
 
 </mujoco>
 
