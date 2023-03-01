@@ -27,6 +27,6 @@ set(IMGUISRC ${IMGUIDIR}/imgui.cpp ${IMGUIDIR}/imgui_demo.cpp ${IMGUIDIR}/imgui_
 
 add_executable(inverted_pendulum src/main.cpp ${IMGUISRC})
 target_include_directories(inverted_pendulum PUBLIC include/ ${MUJOCO_INCLUDE} ${IMGUIDIR} ${IMGUIDIR}/backends)
-target_link_libraries(inverted_pendulum PUBLIC ${MUJOCO_LIB} glfw fmt::fmt ${OPENGL_gl_LIBRARY} ${CMAKE_DL_LIBS})
+target_link_libraries(inverted_pendulum PUBLIC ${MUJOCO_LIB} glfw fmt::fmt OpenGL::GL ${CMAKE_DL_LIBS})
 
 
