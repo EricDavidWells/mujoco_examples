@@ -1,4 +1,4 @@
 **/build
-**.vscode
 **MUJOCO_LOG**
 **cmake-build**
+**.vs
