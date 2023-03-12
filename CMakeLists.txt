@@ -13,6 +13,7 @@ set(MUJOCO_TEST_PYTHON_UTIL OFF)
 add_subdirectory(vendor/mujoco)
 
 find_package(glfw3 REQUIRED)
+find_package(fmt REQUIRED)
 # find_package(OpenGl REQUIRED)
 include(FindOpenGL)
 
