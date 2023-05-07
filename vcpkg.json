@@ -1,8 +1,18 @@
 {
 	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
 	"name": "eric",
+	"version": "0.0.0",
 	"dependencies": [
         "glfw3",
-		"fmt"
+		"fmt",
+		{
+			"name": "imgui",
+			"features": [
+				"glfw-binding",
+				"opengl3-binding",
+				"docking-experimental"
+			]
+		}
+		
     ]
 }

@@ -141,9 +141,6 @@ int main(int argc, char** argv)
 
 
 
-
-
-
     Parameters parameters;
     InputParser input(argc, argv);
     if (input.cmdOptionExists("--model"))
@@ -151,8 +148,9 @@ int main(int argc, char** argv)
         parameters.model = input.getCmdOption("--model");
     }
 
+    fmt::print("loading model with path: {}", parameters.model);
     char error[1000];
-    m = mj_loadXML(argv[1], 0, error, 1000);
+    m = mj_loadXML(parameters.model.c_str(), 0, error, 1000);
     if (!m) { mju_error_s("Load model error: %s", error); }
     d = mj_makeData(m);
 
