@@ -6,37 +6,7 @@
 #include <imgui.h>
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-
-struct InputParser {
-public:
-    InputParser(int& argc, char** argv) {
-        for (int i = 1; i < argc; ++i)
-            this->tokens.push_back(std::string(argv[i]));
-    }
-
-    const std::string& getCmdOption(const std::string& option) const {
-        std::vector<std::string>::const_iterator itr;
-        itr = std::find(this->tokens.begin(), this->tokens.end(), option);
-        if (itr != this->tokens.end() && ++itr != this->tokens.end()) {
-            return *itr;
-        }
-        static const std::string empty_string("");
-        return empty_string;
-    }
-
-    bool cmdOptionExists(const std::string& option) const {
-        return std::find(this->tokens.begin(), this->tokens.end(), option)
-            != this->tokens.end();
-    }
-private:
-    std::vector <std::string> tokens;
-};
-
-
-struct Parameters
-{
-    std::string model;
-};
+#include <input_parser.hpp>
 
 // MuJoCo data structures
 mjModel* m = NULL;                  // MuJoCo model
@@ -117,6 +87,8 @@ void scroll(GLFWwindow* window, double xoffset, double yoffset) {
 int main(int argc, char** argv)
 {
 
+    mujoco_examples::MujocoInputParser input(argc, argv);
+
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
     const char* glsl_version = "#version 100";
@@ -140,17 +112,8 @@ int main(int argc, char** argv)
 #endif
 
 
-
-    Parameters parameters;
-    InputParser input(argc, argv);
-    if (input.cmdOptionExists("--model"))
-    {
-        parameters.model = input.getCmdOption("--model");
-    }
-
-    fmt::print("loading model with path: {}", parameters.model);
     char error[1000];
-    m = mj_loadXML(parameters.model.c_str(), 0, error, 1000);
+    m = mj_loadXML(input.parameters.model.c_str(), 0, error, 1000);
     if (!m) { mju_error_s("Load model error: %s", error); }
     d = mj_makeData(m);
 
@@ -197,10 +160,10 @@ int main(int argc, char** argv)
     mjr_makeContext(m, &con, mjFONTSCALE_150);
 
     // install GLFW mouse and keyboard callbacks
-    // glfwSetKeyCallback(window, keyboard);
-    // glfwSetCursorPosCallback(window, mouse_move);
-    // glfwSetMouseButtonCallback(window, mouse_button);
-    // glfwSetScrollCallback(window, scroll);
+    glfwSetKeyCallback(window, keyboard);
+    glfwSetCursorPosCallback(window, mouse_move);
+    glfwSetMouseButtonCallback(window, mouse_button);
+    glfwSetScrollCallback(window, scroll);
 
     bool show_demo_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
