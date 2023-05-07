@@ -1,5 +1,5 @@
 **/build
-**.vscode
 **MUJOCO_LOG**
 **cmake-build**
 **imgui.ini
+**.vs**

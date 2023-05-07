@@ -1,6 +1,9 @@
 [submodule "vendor/fmt"]
 	path = vendor/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "vendor/mujoco"]
+	path = vendor/mujoco
+	url = https://github.com/deepmind/mujoco.git
 [submodule "vendor/imgui"]
 	path = vendor/imgui
 	url = https://github.com/ocornut/imgui.git

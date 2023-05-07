@@ -261,7 +261,7 @@ int main(int argc, char** argv)
         auto pendulum_joint_id = mj_name2id(m, mjtObj::mjOBJ_SENSOR, "pendulum_rotation_sensor");
 
         auto sensor_data = d->sensordata;
-        fmt::println("cart position: {}, pendulum position: {}", sensor_data[cart_joint_id], sensor_data[pendulum_joint_id]);
+        fmt::print("cart position: {}, pendulum position: {}", sensor_data[cart_joint_id], sensor_data[pendulum_joint_id]);
 
         // set control information
         d->ctrl[0] = 400*sensor_data[pendulum_joint_id] + (20)*sensor_data[cart_joint_id];
