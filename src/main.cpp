@@ -84,10 +84,43 @@ void scroll(GLFWwindow* window, double xoffset, double yoffset) {
   mjv_moveCamera(m, mjMOUSE_ZOOM, 0, -0.05*yoffset, &scn, &cam);
 }
 
-int main(int argc, char** argv)
+GLFWwindow* glfw_setup_mujoco(const mujoco_examples::MujocoInputParser::Parameters& parameters)
 {
+ // load model
+  char error[1000];
+  m = mj_loadXML(parameters.model.c_str(), 0, error, 1000);
+  if (!m) { mju_error_s("Load model error: %s", error); }
+  d = mj_makeData(m);
 
-    mujoco_examples::MujocoInputParser input(argc, argv);
+  // create window, make OpenGL context current, request v-sync
+  auto window = glfwCreateWindow(1200, 900, "Mujoco Window", NULL, NULL);
+  glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
+
+  // initialize visualization data structures
+  mjv_defaultCamera(&cam);
+  mjv_defaultOption(&opt);
+  mjv_defaultScene(&scn);
+  mjr_defaultContext(&con);
+
+  // create scene and context
+  mjv_makeScene(m, &scn, 2000);
+  mjr_makeContext(m, &con, mjFONTSCALE_150);
+  
+  opt.frame = mjtFrame::mjFRAME_BODY;
+  opt.label = mjtLabel::mjLABEL_BODY;
+
+  // install GLFW mouse and keyboard callbacks
+  glfwSetKeyCallback(window, keyboard);
+  glfwSetCursorPosCallback(window, mouse_move);
+  glfwSetMouseButtonCallback(window, mouse_button);
+  glfwSetScrollCallback(window, scroll);
+
+  return window;
+}
+
+GLFWwindow* glfw_setup_imgui()
+{
 
 #if defined(IMGUI_IMPL_OPENGL_ES2)
     // GL ES 2.0 + GLSL 100
@@ -107,134 +140,101 @@ int main(int argc, char** argv)
     const char* glsl_version = "#version 130";
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-    //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
+  // create window, make OpenGL context current, request v-sync
+  auto window = glfwCreateWindow(1200, 900, "IMGUI Window", NULL, NULL);
+  glfwMakeContextCurrent(window);
+  glfwSwapInterval(1);
+  ImGui::CreateContext();
 
-    char error[1000];
-    m = mj_loadXML(input.parameters.model.c_str(), 0, error, 1000);
-    if (!m) { mju_error_s("Load model error: %s", error); }
-    d = mj_makeData(m);
+  ImGuiIO& io = ImGui::GetIO(); 
+  (void)io;
+  // setup imgui
+  io.WantCaptureMouse = true;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+  
+  ImGuiStyle& style = ImGui::GetStyle();
+  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+  {
+      style.WindowRounding = 0.0f;
+      style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+  }
 
-    // init GLFW
-    if (!glfwInit()) {
-    mju_error("Could not initialize GLFW");
-    }
+  ImGui::StyleColorsDark();
 
-    // create window, make OpenGL context current, request v-sync
-    GLFWwindow* window = glfwCreateWindow(1200, 900, "Demo", NULL, NULL);
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // setup imgui
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.WantCaptureMouse = true;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-    
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-    
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+  // int window_width, window_height, window_posx, window_posy;
+  // glfwGetWindowSize(window, &window_width, &window_height);
+  // glfwGetWindowPos(window, &window_posx, &window_posy);
+  // ImGui::SetNextWindowSize(ImVec2(window_width, window_height));
+  // ImGui::SetNextWindowPos(ImVec2(window_posx, window_posy));
 
-    // initialize visualization data structures
-    mjv_defaultCamera(&cam);
-    mjv_defaultOption(&opt);
-    mjv_defaultScene(&scn);
-    mjr_defaultContext(&con);
+  return window;
+}
 
-    opt.frame = mjtFrame::mjFRAME_BODY;
-    opt.label = mjtLabel::mjLABEL_BODY;
+static void glfw_error_callback(int error, const char* description)
+{
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+}
 
-    // create scene and context
-    mjv_makeScene(m, &scn, 2000);
-    mjr_makeContext(m, &con, mjFONTSCALE_150);
+int main(int argc, char** argv)
+{
+  mujoco_examples::MujocoInputParser input(argc, argv);
 
-    // install GLFW mouse and keyboard callbacks
-    glfwSetKeyCallback(window, keyboard);
-    glfwSetCursorPosCallback(window, mouse_move);
-    glfwSetMouseButtonCallback(window, mouse_button);
-    glfwSetScrollCallback(window, scroll);
+  glfwSetErrorCallback(glfw_error_callback);
+  if (!glfwInit())
+      return 1;
 
-    bool show_demo_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+  auto imgui_window = glfw_setup_imgui();
+  auto mujoco_window = glfw_setup_mujoco(input.parameters);
 
-    // run main loop, target real-time simulation and 60 fps rendering
-    while (!glfwWindowShouldClose(window)) {
-        // advance interactive simulation for 1/60 sec
-        //  Assuming MuJoCo can simulate faster than real-time, which it usually can,
-        //  this loop will finish on time for the next frame to be rendered at 60 fps.
-        //  Otherwise add a cpu timer and exit this loop when it is time to render.
-        
+  bool show_demo_window = false;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+    while (!glfwWindowShouldClose(imgui_window) && !glfwWindowShouldClose(mujoco_window)) {
+
+        glfwMakeContextCurrent(imgui_window);
         // update imgui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-      
+        ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
 
-        if (show_demo_window)ImGui::ShowDemoWindow(&show_demo_window);
+        if (show_demo_window){ImGui::ShowDemoWindow(&show_demo_window)};
         
-        {
-            static float f = 0.0f;
-            static int counter = 0;
+        static float f = 0.0f;
+        static int counter = 0;
 
-            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
 
-            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+            counter++;
+        ImGui::SameLine();
+        ImGui::Text("counter = %d", counter);
 
-            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-                counter++;
-            ImGui::SameLine();
-            ImGui::Text("counter = %d", counter);
-
-            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-            ImGui::End();
-        }
-
-
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+        
         ImGui::Render();
-
-        
-        mjtNum simstart = d->time;
-        while (d->time - simstart < 1.0/60.0) {
-            mj_step(m, d);
-        }
-
-        // get framebuffer viewport
-        mjrRect viewport = {0, 0, 0, 0};
-        glfwGetFramebufferSize(window, &viewport.width, &viewport.height);
-
-        // get sensor information
-        auto cart_joint_id = mj_name2id(m, mjtObj::mjOBJ_SENSOR, "cart_slide_sensor");
-        auto pendulum_joint_id = mj_name2id(m, mjtObj::mjOBJ_SENSOR, "pendulum_rotation_sensor");
-
-        auto sensor_data = d->sensordata;
-        fmt::print("cart position: {}, pendulum position: {}", sensor_data[cart_joint_id], sensor_data[pendulum_joint_id]);
-
-        // set control information
-        d->ctrl[0] = 400*sensor_data[pendulum_joint_id] + (20)*sensor_data[cart_joint_id];
-
-
-        // update scene and render
-        mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
-        mjr_render(viewport, &scn, &con);
-
-        // glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-        // glClear(GL_COLOR_BUFFER_BIT);
+        int display_w, display_h;
+        glfwGetFramebufferSize(imgui_window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        ImGuiIO& io = ImGui::GetIO(); 
+        (void)io;
 
         if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         {
@@ -243,13 +243,47 @@ int main(int argc, char** argv)
             ImGui::RenderPlatformWindowsDefault();
             glfwMakeContextCurrent(backup_current_context);
         }
+        glfwSwapBuffers(imgui_window);
+
+        glfwMakeContextCurrent(mujoco_window);
+        mjtNum simstart = d->time;
+        while (d->time - simstart < 1.0/60.0) {
+            mj_step(m, d);
+        }
+
+        // get sensor information
+        auto cart_joint_id = mj_name2id(m, mjtObj::mjOBJ_SENSOR, "cart_slide_sensor");
+        auto pendulum_joint_id = mj_name2id(m, mjtObj::mjOBJ_SENSOR, "pendulum_rotation_sensor");
+
+        auto sensor_data = d->sensordata;
+        fmt::print("cart position: {}, pendulum position: {}\n", sensor_data[cart_joint_id], sensor_data[pendulum_joint_id]);
+
+        // set control information
+        d->ctrl[0] = 400*sensor_data[pendulum_joint_id] + (20)*sensor_data[cart_joint_id];
+
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // render
+        mjrRect viewport = {0, 0, 0, 0};
+        glfwGetFramebufferSize(mujoco_window, &viewport.width, &viewport.height);
+        mjv_updateScene(m, d, &opt, NULL, &cam, mjCAT_ALL, &scn);
+        mjr_render(viewport, &scn, &con);
 
         // swap OpenGL buffers (blocking call due to v-sync)
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(mujoco_window);
 
-        // process pending GUI events, call GLFW callbacks
+        // // process pending GUI events, call GLFW callbacks
         glfwPollEvents();
     }   
+
+    // Cleanup
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(imgui_window);
+    glfwTerminate();
 
     //free visualization storage
     mjv_freeScene(&scn);

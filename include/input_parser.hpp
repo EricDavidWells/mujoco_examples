@@ -46,7 +46,7 @@ struct MujocoInputParser: InputParser
         }
     }
 
-    struct
+    struct Parameters
     {
         std::string model;
     } parameters;
