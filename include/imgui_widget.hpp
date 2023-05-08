@@ -7,6 +7,7 @@
 namespace mujoco_examples
 {
 
+// set up imgui with glfw, call once at start
 GLFWwindow* glfw_setup_imgui()
 {
 
@@ -65,6 +66,7 @@ GLFWwindow* glfw_setup_imgui()
   return window;
 }
 
+// update imgui
 void imgui_loop(GLFWwindow* imgui_window)
 {
     glfwMakeContextCurrent(imgui_window);
@@ -119,6 +121,7 @@ void imgui_loop(GLFWwindow* imgui_window)
     glfwPollEvents();
 }
 
+// destroy imgui, call once at end
 void glfw_destroy_imgui(GLFWwindow* imgui_window)
 {
   // Cleanup

@@ -83,6 +83,7 @@ void scroll(GLFWwindow* window, double xoffset, double yoffset) {
   mjv_moveCamera(m, mjMOUSE_ZOOM, 0, 0.05*yoffset, &scn, &cam);
 }
 
+// set up mujoco with glfw, call once at beginning
 GLFWwindow* glfw_setup_mujoco(const mujoco_examples::MujocoInputParser::Parameters& parameters)
 {
  // load model
@@ -118,6 +119,7 @@ GLFWwindow* glfw_setup_mujoco(const mujoco_examples::MujocoInputParser::Paramete
   return window;
 }
 
+// update mujoco
 void mujoco_loop(GLFWwindow* mujoco_window)
 {
   glfwMakeContextCurrent(mujoco_window);
@@ -150,6 +152,7 @@ void mujoco_loop(GLFWwindow* mujoco_window)
   glfwPollEvents();
 }
 
+// destroy mujoco, call once at end
 void glfw_destroy_mujoco(GLFWwindow* imgui_window)
 {
   // Cleanup
