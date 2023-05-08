@@ -2,6 +2,9 @@
 #include <imgui.h>
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include <implot.h>
+#include <implot_internal.h>
+
 #include <GLFW/glfw3.h>
 
 namespace mujoco_examples
@@ -36,6 +39,7 @@ GLFWwindow* glfw_setup_imgui()
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
   ImGui::CreateContext();
+  ImPlot::CreateContext();
 
   ImGuiIO& io = ImGui::GetIO(); 
   (void)io;
@@ -79,7 +83,10 @@ void imgui_loop(GLFWwindow* imgui_window)
     static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     static bool show_demo_window = false;
 
-    if (show_demo_window){ImGui::ShowDemoWindow(&show_demo_window);};
+    if (show_demo_window){
+      ImGui::ShowDemoWindow(&show_demo_window);
+      ImPlot::ShowDemoWindow();
+      };
 
     static float f = 0.0f;
     static int counter = 0;
@@ -128,6 +135,7 @@ void glfw_destroy_imgui(GLFWwindow* imgui_window)
   glfwDestroyWindow(imgui_window);
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
+  ImPlot::DestroyContext();
   ImGui::DestroyContext();
 }
 }
