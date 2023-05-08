@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fmt/format.h>
+#include <vector>
 
 namespace mujoco_examples
 {
