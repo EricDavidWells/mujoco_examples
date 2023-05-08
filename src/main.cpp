@@ -1,33 +1,37 @@
-#include <fmt/format.h>
-#include <vector>
 #include <algorithm>
+#include <fmt/format.h>
 #include <imgui_widget.hpp>
-#include <mujoco_widget.hpp>
 #include <input_parser.hpp>
+#include <mujoco_widget.hpp>
+#include <vector>
 
-static void glfw_error_callback(int error, const char* description)
+static void
+glfw_error_callback (int error, const char *description)
 {
-    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+  fprintf (stderr, "GLFW Error %d: %s\n", error, description);
 }
 
-int main(int argc, char** argv)
+int
+main (int argc, char **argv)
 {
-  mujoco_examples::MujocoInputParser input(argc, argv);
+  mujoco_examples::MujocoInputParser input (argc, argv);
 
-  glfwSetErrorCallback(glfw_error_callback);
-  if (!glfwInit())
-      return 1;
+  glfwSetErrorCallback (glfw_error_callback);
+  if (!glfwInit ())
+    return 1;
 
-  auto imgui_window = mujoco_examples::glfw_setup_imgui();
-  auto mujoco_window = mujoco_examples::glfw_setup_mujoco(input.parameters);
+  auto imgui_window = mujoco_examples::glfw_setup_imgui ();
+  auto mujoco_window = mujoco_examples::glfw_setup_mujoco (input.parameters);
 
-  while (!glfwWindowShouldClose(imgui_window) && !glfwWindowShouldClose(mujoco_window)) {
+  while (!glfwWindowShouldClose (imgui_window)
+         && !glfwWindowShouldClose (mujoco_window))
+    {
 
-    mujoco_examples::imgui_loop(imgui_window);
-    mujoco_examples::mujoco_loop(mujoco_window);
-  }   
+      mujoco_examples::imgui_loop (imgui_window);
+      mujoco_examples::mujoco_loop (mujoco_window);
+    }
 
-  mujoco_examples::glfw_destroy_imgui(imgui_window);
-  mujoco_examples::glfw_destroy_mujoco(mujoco_window);
-  glfwTerminate();
+  mujoco_examples::glfw_destroy_imgui (imgui_window);
+  mujoco_examples::glfw_destroy_mujoco (mujoco_window);
+  glfwTerminate ();
 }
